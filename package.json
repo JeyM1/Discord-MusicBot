@@ -11,7 +11,8 @@
     "guild": "node deploy/guild",
     "ddev": "cd dashboard && npm run dev",
     "dbuild": "cd dashboard && npm run build && npm run export",
-    "dstart": "cd dashboard && npm run start"
+    "dstart": "cd dashboard && npm run start",
+    "prod": "npm run deploy && node index.js"
   },
   "repository": {
     "type": "git",

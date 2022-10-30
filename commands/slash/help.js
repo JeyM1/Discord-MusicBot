@@ -26,7 +26,7 @@ const command = new SlashCommand()
 		//console.log(filteredCommands);
 		const totalCmds = filteredCommands.length;
 		let maxPages = Math.ceil(totalCmds / client.config.cmdPerPage);
-		
+
 		// if git exists, then get commit hash
 		let gitHash = "";
 		try {
@@ -38,10 +38,10 @@ const command = new SlashCommand()
 			// do nothing
 			gitHash = "unknown";
 		}
-		
+
 		// default Page No.
 		let pageNo = 0;
-		
+
 		const helpEmbed = new MessageEmbed()
 			.setColor(client.config.embedColor)
 			.setAuthor({
@@ -50,13 +50,13 @@ const command = new SlashCommand()
 			})
 			.setTimestamp()
 			.setFooter({ text: `Page ${ pageNo + 1 } / ${ maxPages }` });
-		
+
 		// initial temporary array
 		var tempArray = filteredCommands.slice(
 			pageNo * client.config.cmdPerPage,
 			pageNo * client.config.cmdPerPage + client.config.cmdPerPage,
 		);
-		
+
 		tempArray.forEach((cmd) => {
 			helpEmbed.addField(cmd.name, cmd.description);
 		});
@@ -66,9 +66,9 @@ const command = new SlashCommand()
 				require("../../package.json").version
 			}; Build: ${ gitHash }` +
 			"\n" +
-			`[✨ Support Server](${ client.config.supportServer }) | [Issues](${ client.config.Issues }) | [Source](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5) | [Invite Me](https://discord.com/oauth2/authorize?client_id=${ client.config.clientId }&permissions=${ client.config.permissions }&scope=bot%20applications.commands)`,
+			`[✨ Support Server](${ client.config.supportServer }) | [Issues](${ client.config.Issues }) | [Invite Me](https://discord.com/oauth2/authorize?client_id=${ client.config.clientId }&permissions=${ client.config.permissions }&scope=bot%20applications.commands)`,
 		);
-		
+
 		// Construction of the buttons for the embed
 		const getButtons = (pageNo) => {
 			return new MessageActionRow().addComponents(
@@ -84,7 +84,7 @@ const command = new SlashCommand()
 					.setDisabled(pageNo == maxPages - 1),
 			);
 		};
-		
+
 		const tempMsg = await interaction.editReply({
 			embeds: [helpEmbed],
 			components: [getButtons(pageNo)],
@@ -94,21 +94,21 @@ const command = new SlashCommand()
 			time: 600000,
 			componentType: "BUTTON",
 		});
-		
+
 		collector.on("collect", async (iter) => {
 			if (iter.customId === "help_cmd_but_1_app") {
 				pageNo++;
 			} else if (iter.customId === "help_cmd_but_2_app") {
 				pageNo--;
 			}
-			
+
 			helpEmbed.fields = [];
-			
+
 			var tempArray = filteredCommands.slice(
 				pageNo * client.config.cmdPerPage,
 				pageNo * client.config.cmdPerPage + client.config.cmdPerPage,
 			);
-			
+
 			tempArray.forEach((cmd) => {
 				//console.log(cmd);
 				helpEmbed
