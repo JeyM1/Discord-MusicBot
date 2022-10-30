@@ -6,9 +6,9 @@ const session = require("express-session");
 const DiscordStrategy = require("passport-discord").Strategy;
 const passport = require("passport");
 const getConfig = require("../util/getConfig");
-const DiscordMusicBot = require("../lib/DiscordMusicBot");
+// const DiscordMusicBot = require("../lib/DiscordMusicBot");
 const Auth = require("./middlewares/auth");
-const client = require("../index");
+// const client = require("../index");
 const packageJson = require("../package.json");
 
 passport.serializeUser(function (user, done) {
