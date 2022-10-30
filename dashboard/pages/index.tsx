@@ -61,7 +61,7 @@ const Home = (_props: any) => {
                     } }>Login
                     </Button>
                     <Button color="primary" flat
-                            onClick={ () => window.open('https://github.com/SudhanPlayz/Discord-MusicBot') } style={ {
+                            onClick={ () => window.open('https://github.com/JeyM1/Discord-MusicBot') } style={ {
                         marginTop: '1rem',
                         marginLeft: '20px'
                     } }>Github
@@ -135,4 +135,4 @@ const Home = (_props: any) => {
 }
 
 
-export default Home 
+export default Home
