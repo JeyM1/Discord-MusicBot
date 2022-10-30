@@ -112,7 +112,6 @@ class Server extends EventEmitter {
 
         this.app.get("/api/info", (req, res) => {
             let data = {
-                name: client.user.username,
                 version: packageJson.version,
                 commands: client.slashCommands.map(cmd => {
                     return {
