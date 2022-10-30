@@ -115,3 +115,4 @@ db.json
 yarn.lock
 package-lock.json
 .idea/
+prod.config.js
