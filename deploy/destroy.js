@@ -12,7 +12,7 @@ const rl = readline.createInterface({
 (async () => {
 	const config = await getConfig();
 	const rest = new REST({ version: "9" }).setToken(config.token);
-	
+
 	if (!process.argv.includes("--global")) {
 		rl.question(
 			"Enter the guild id you wanted to delete commands: ",
@@ -37,4 +37,4 @@ const rl = readline.createInterface({
 		console.log("Evil bot has done the deed, exiting...");
 		process.exit();
 	}
-})();
+})().then(() => process.exit(0));

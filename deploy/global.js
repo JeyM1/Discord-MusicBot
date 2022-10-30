@@ -9,7 +9,7 @@ const LoadCommands = require("../util/loadCommands");
 	const commands = await LoadCommands().then((cmds) => {
 		return [].concat(cmds.slash).concat(cmds.context);
 	});
-	
+
 	console.log("Deploying commands to global...");
 	await rest
 		.put(Routes.applicationCommands(config.clientId), {
@@ -17,4 +17,4 @@ const LoadCommands = require("../util/loadCommands");
 		})
 		.catch(console.log);
 	console.log("Successfully deployed commands!");
-})();
+})().then(() => process.exit(0));
