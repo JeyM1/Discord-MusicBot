@@ -23,10 +23,10 @@ module.exports = {
 	nodes: [
 		{
 			identifier: "Main Node", //- Used for indentifier in stats commands.
-			host: "node1.gglvxd.tk", //- The host name or IP of the lavalink server.
+			host: "lavalink.oops.wtf", //- The host name or IP of the lavalink server.
 			port: 443, // The port that lavalink is listening to. This must be a number!
-			password: "free", //- The password of the lavalink server.
-			retryAmount: 200, //- The amount of times to retry connecting to the node if connection got dropped.
+			password: "www.freelavalink.ga", //- The password of the lavalink server.
+			retryAmount: 10, //- The amount of times to retry connecting to the node if connection got dropped.
 			retryDelay: 40, //- Delay between reconnect attempts if connection is lost.
 			secure: true, //- Can be either true or false. Only use true if ssl is enabled!
 		},
