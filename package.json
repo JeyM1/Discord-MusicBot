@@ -19,7 +19,7 @@
     "url": "git+https://github.com/JeyM1/Discord-MusicBot.git"
   },
   "engines": {
-    "node": ">=16.x <=16.16"
+    "node": ">=16.x <=18"
   },
   "keywords": [
     "discord",
