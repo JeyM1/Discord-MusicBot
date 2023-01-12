@@ -1,135 +1,105 @@
 const express = require("express");
 const fs = require("fs");
-const {EventEmitter} = require("events");
-const {join} = require("path");
+const { EventEmitter } = require("events");
+const { join } = require("path");
 const session = require("express-session");
 const DiscordStrategy = require("passport-discord").Strategy;
 const passport = require("passport");
 const getConfig = require("../util/getConfig");
-// const DiscordMusicBot = require("../lib/DiscordMusicBot");
-const Auth = require("./middlewares/auth");
-// const client = require("../index");
-const packageJson = require("../package.json");
+const DiscordMusicBot = require("../lib/DiscordMusicBot");
+const router = require("./router");
 
 passport.serializeUser(function (user, done) {
-    done(null, user);
+	done(null, user);
 });
 
 passport.deserializeUser(function (obj, done) {
-    done(null, obj);
+	done(null, obj);
 });
 
 class Server extends EventEmitter {
-    /**
-     * Create server ;-;
-     * @param {DiscordMusicBot} client
-     */
-    constructor(client) {
-        super();
-        getConfig()
-            .then((conf) => {
-                this.config = conf;
-                this.listen();
-            });
+	/**
+	 * Create server ;-;
+	 * @param {DiscordMusicBot} client
+	 */
+	constructor(client) {
+		super();
+		this.client = client;
+		getConfig().then(this.init.bind(this));
+	}
 
-        this.app = express();
+	init(conf) {
+		this.config = conf;
+		this.app = express();
+		
+		this.app.use(express.static(join(__dirname, "..", "public")));
+		
+		// Static Routes for scripts
+		const dist = join(__dirname, "..", "dashboard", "out", "_next")
+		
+		this.app.use("/_next", express.static(dist));
 
-        //API
-        fs.readdir(join(__dirname, "routes"), (err, files) => {
-            if (err) {
-                return console.log(err);
-            }
-            files.forEach((file) => {
-                this.app.use(
-                    "/api/" + file.split(".")[0],
-                    require(join(__dirname, "routes") + "/" + file),
-                );
-            });
-        });
+		// Session and Passport
+		this.app.use(session({
+			resave: false,
+			saveUninitialized: false,
+			secret: this.config.cookieSecret,
+			cookie: {
+				secure: this.config.website.startsWith("https://"),
+				sameSite: true,
+			},
+		}));
 
-        this.app.use(express.static(join(__dirname, "..", "public")));
+		this.initPassport();
 
-        //Static Routes
-        let dist = join(__dirname, "..", "dashboard", "out")
+		this.app.use(router);
 
-        this.app.use(express.static(dist));
-        this.app.get("/login", (_req, res) => {
-            res.sendFile(join(dist, "login.html"));
-            res.redirect("/api/callback")
-        });
-        this.app.get("/logout", (req, res) => {
-            if (req.user) {
-                req.logout();
-            }
-            res.sendFile(join(dist, "logout.html"));
-        });
-        this.app.get("/dashboard", Auth, (_req, res) => {
-            res.sendFile(join(dist, "dashboard.html"));
-        });
-        this.app.get("/servers", Auth, (_req, res) => {
-            res.sendFile(join(dist, "servers.html"));
-        });
+		//API
+		fs.readdir(join(__dirname, "routes"), (err, files) => {
+			if (err) {
+				return console.log(err);
+			}
+			files.forEach((file) => {
+				this.app.use(
+					"/api/" + file.split(".")[0],
+					require(join(__dirname, "routes") + "/" + file),
+				);
+			});
+		});
 
-        // Session and Passport
-        this.app.use(session({
-            resave: true,
-            saveUninitialized: true,
-            secret: client.config.cookieSecret,
-            cookie: {
-                secure: client.config.website.startsWith("https://"),
-                sameSite: true,
-            },
-        }));
-        this.app.use(passport.initialize());
-        this.app.use(passport.session());
+		this.listen();
+	}
+	
+	initPassport() {
+		this.app.use(passport.initialize());
 
-        passport.use(
-            new DiscordStrategy(
-                {
-                    clientID: client.config.clientId,
-                    clientSecret: client.config.clientSecret,
-                    callbackURL: client.config.website + "/api/callback",
-                    scope: client.config.scopes.filter(a => !a.startsWith("app")).join(" "),
-                },
-                function (accessToken, refreshToken, profile, done) {
-                    process.nextTick(function () {
-                        return done(null, profile);
-                    });
-                },
-            ),
-        );
+		const strategy = new DiscordStrategy(
+			{
+				clientID: this.config.clientId,
+				clientSecret: this.config.clientSecret,
+				callbackURL: this.config.website + "/api/callback",
+				scope: this.config.scopes.filter(a => !a.startsWith("app")),
+				scopeSeparator: " ",
+			},
+			function (accessToken, refreshToken, profile, done) {
+				const data = {
+					accessToken,
+					refreshToken,
+					profile,
+				};
 
-        this.app.get(
-            "/api/callback",
-            passport.authenticate("discord", {
-                failureRedirect: "/",
-                session: true,
-            }),
-            function (req, res) {
-                res.redirect("/dashboard");
-            },
-        );
+				return done(null, data);
+			},
+		);
+		passport.use(strategy);
 
-        this.app.get("/api/info", (req, res) => {
-            let data = {
-                version: packageJson.version,
-                commands: client.slashCommands.map(cmd => {
-                    return {
-                        name: cmd.name,
-                        description: cmd.description,
-                    }
-                }),
-                inviteURL: `https://discord.com/oauth2/authorize?client_id=${client.config.clientId
-                }&permissions=${client.config.permissions
-                }&scope=${client.config.scopes.toString().replace(/,/g, "%20")}`,
-            }
-            res.json(data)
-        })
-    }
+		this.app.use(passport.session());
+	}
 
-    listen() {
-        this.app.listen(this.config.port);
-    }
+	listen() {
+		this.app.listen(this.config.port);
+		console.log("[SERVER] Listening on port:", this.config.port);
+	}
 }
 
 module.exports = Server;
