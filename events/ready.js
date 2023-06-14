@@ -1,3 +1,5 @@
+const {platform, arch} = require("os");
+
 /**
  *
  * @param {import("../lib/DiscordMusicBot")} client
