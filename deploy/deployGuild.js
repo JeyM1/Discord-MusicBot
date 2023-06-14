@@ -15,7 +15,7 @@ const rl = readline.createInterface({
 	const commands = await LoadCommands().then((cmds) => {
 		return [].concat(cmds.slash).concat(cmds.context);
 	});
-	
+
 	rl.question(
 		"Enter the guild id you wanted to deploy commands: ",
 		async (guild) => {
@@ -29,4 +29,4 @@ const rl = readline.createInterface({
 			rl.close();
 		},
 	);
-})();
+})().then(() => process.exit(0));
