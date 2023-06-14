@@ -1,8 +1,3 @@
-const { exec } = require("child_process");
-const { platform, arch } = require("os");
-const { join } = require("path");
-const { get, set } = require("../util/db");
-
 /**
  *
  * @param {import("../lib/DiscordMusicBot")} client
